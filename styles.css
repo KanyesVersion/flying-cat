@@ -1,0 +1,91 @@
+:root {
+    --general-padding: 1rem;
+}
+
+*, *::after, *::before {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    height: 100vh;
+    background-color: #003624;
+    font-family: 'System UI', sans-serif;
+}
+
+#devtools {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 6rem;
+    height: 75%;
+    border-top: 2px solid #000;
+    border-right: 2px solid #000;
+    display: flex;
+    flex-direction: column;
+    padding: .5rem;
+    background-color: #aaa;
+    align-items: center;
+    gap: .5rem;
+}
+
+#devtools button {
+    border: 2px solid #000;
+    background-color: #eee;
+    color: #000;
+    cursor: pointer;
+    padding: .25rem;
+}
+
+#devtools button:active {
+    transform: scale(.9);
+}
+
+#canvas {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: .25rem;
+}
+
+#title-menu {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100vw;
+    height: 100vh;
+    transform: translate(-50%, -50%);
+    display: grid;
+    place-content: center;
+}
+
+#start-btn {
+    padding: 2rem 5rem;
+    background-color: #ff0011;
+    border: none;
+    border-radius: .5rem;
+    font-size: 2rem;
+    color: #fff;
+    cursor: pointer;
+}
+
+#start-btn:hover {
+    transform: scale(1.1);
+}
+
+#start-btn:active {
+    transform: scale(1);
+}
+
+/* general */
+
+.hidden {
+    display: none !important;
+}

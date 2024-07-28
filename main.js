@@ -112,6 +112,7 @@ class Player {
         this.#updatePosition();
         this.checkCollisions();
         this.draw();
+        console.log(this.flyTstUpAnimation.isFinished);
     }
 
     draw() {
@@ -316,7 +317,7 @@ class Bird {
         }
         this.width = gridSize * 4;
         this.height = gridSize * 1.5;
-        this.state = 'dive';
+        this.state = 'diveStart';
         this.xSpawn = canvasWidth - Math.floor(Math.random() * 3) * 100;
         this.x = this.xSpawn;
         this.y = 1;
@@ -340,6 +341,7 @@ class Bird {
                 y: Math.floor(this.y + this.height / 2)
             },
         }
+        this.#createAnimations();
     }
 
     create() {
@@ -359,8 +361,22 @@ class Bird {
         this.hitbox.c.y += this.velocity.y;
         this.hitbox.d.y += this.velocity.y;
 
+        this.#setState();
+
         switch (this.state) {
             case 'dive':
+                if (this.y < this.diveDistance / 2) {
+                } else {
+                    this.velocity.y = 10;
+                }
+        
+                if (this.y >= this.diveDistance) {
+                    this.velocity.y = this.planeVelocity;
+                    this.velocity.x -= oddsPercent(50) ? 2 : 4;
+                    this.state = 'plane';
+                }
+                break;
+            case 'diveStart':
                 if (this.y < this.diveDistance / 2) {
                 } else {
                     this.velocity.y = 10;
@@ -384,13 +400,53 @@ class Bird {
             ctx.fillRect(this.hitbox.a.x, this.hitbox.a.y, this.hitbox.b.x - this.hitbox.a.x, this.hitbox.c.y - this.hitbox.a.y);
         }
 
-
-        ctx.drawImage(this.img, this.x - this.width / 2 - gridSize / 4, this.y - this.height);
+        const currAnimation = this.animations.find(el => el.isFor(this.state));
+        currAnimation.setImageIndex();
+        const image = currAnimation.getImage();
+        ctx.drawImage(image, this.x - this.width / 2 - gridSize / 4, this.y - this.height / 2 - gridSize / 2);
     }
 
     dive() {
         this.velocity.x = (Math.floor(Math.random() * 3) + 8) * -1;
         this.velocity.y = 10;
+    }
+
+    #setState() {
+        if (this.state === 'diveStart' && this.diveStartAnimation.isFinished) {
+            this.state = 'dive';
+            this.diveStartAnimation.reset();
+        }
+    }
+
+    #createAnimations() {
+        //urlTemplate, numImages, frameDuration, isCyclical, state
+        this.diveStartAnimation = new SpriteAnimation(
+            'bird/bird-dive-x.png',
+            4,
+            6,
+            false,
+            'diveStart'
+        );
+        this.diveAnimation = new SpriteAnimation(
+            'bird/bird-diving-x.png',
+            2,
+            4,
+            true,
+            'dive'
+        );
+        this.planeAnimation = new SpriteAnimation(
+            'bird/bird-plane-x.png',
+            2,
+            2,
+            true,
+            'plane'
+        );
+
+        this.animations = [
+            this.diveStartAnimation,
+            this.diveAnimation,
+            this.planeAnimation,
+        ];
     }
 }
 
@@ -578,7 +634,7 @@ function oneSecClock() {
         }
 
         if (oddsPercent(5)) {
-            for (let i = 0; i < 8; i++) {
+            for (let i = 0; i < 4; i++) {
                 spawnBird();
             }
         }

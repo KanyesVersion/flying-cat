@@ -67,30 +67,101 @@ const playerSpeed = {
 }
 const birdArray = [];
 
+class Hitbox {
+    constructor(objX, objY, objWidth, objHeight, origin, color) {
+        this.objX = objX;
+        this.objY = objY;
+        this.objWidth = objWidth;
+        this.objHeight = objHeight;
+        this.origin = origin;
+        this.color = color;
+        this.a = {x: 0, y: 0};
+        this.b = {x: 0, y: 0};
+        this.c = {x: 0, y: 0};
+        this.d = {x: 0, y: 0};
+        switch (this.origin) {
+            case 'center':
+                this.a.x = Math.floor(this.objX - this.objWidth / 2);
+                this.a.y = Math.floor(this.objY - this.objHeight / 2);
+                this.b.x = Math.floor(this.objX + this.objWidth / 2);
+                this.b.y = Math.floor(this.objY - this.objHeight / 2);
+                this.c.x = Math.floor(this.objX - this.objWidth / 2);
+                this.c.y = Math.floor(this.objY + this.objHeight / 2);
+                this.d.x = Math.floor(this.objX + this.objWidth / 2);
+                this.d.y = Math.floor(this.objY + this.objHeight / 2);
+                break;
+            case 'corner':
+                this.a.x = Math.floor(this.objX);
+                this.a.y = Math.floor(this.objY);
+                this.b.x = Math.floor(this.objX + this.objWidth);
+                this.b.y = Math.floor(this.objY);
+                this.c.x = Math.floor(this.objX);
+                this.c.y = Math.floor(this.objY + this.objHeight);
+                this.d.x = Math.floor(this.objX + this.objWidth);
+                this.d.y = Math.floor(this.objY + this.objHeight);
+                break;
+            case 'default':
+                this.a.x = Math.floor(this.objX);
+                this.a.y = Math.floor(this.objY);
+                this.b.x = Math.floor(this.objX + this.objWidth);
+                this.b.y = Math.floor(this.objY);
+                this.c.x = Math.floor(this.objX);
+                this.c.y = Math.floor(this.objY + this.objHeight);
+                this.d.x = Math.floor(this.objX + this.objWidth);
+                this.d.y = Math.floor(this.objY + this.objHeight);
+                break;
+        }
+        
+    }
+
+    updatePosition(objX ,objY) {
+        switch (this.origin) {
+            case 'center':
+                this.a.x = Math.floor(objX - this.objWidth / 2);
+                this.a.y = Math.floor(objY - this.objHeight / 2);
+                this.b.x = Math.floor(objX + this.objWidth / 2);
+                this.b.y = Math.floor(objY - this.objHeight / 2);
+                this.c.x = Math.floor(objX - this.objWidth / 2);
+                this.c.y = Math.floor(objY + this.objHeight / 2);
+                this.d.x = Math.floor(objX + this.objWidth / 2);
+                this.d.y = Math.floor(objY + this.objHeight / 2);
+                break;
+            case 'corner':
+                this.a.x = Math.floor(objX);
+                this.a.y = Math.floor(objY);
+                this.b.x = Math.floor(objX + this.objWidth);
+                this.b.y = Math.floor(objY);
+                this.c.x = Math.floor(objX);
+                this.c.y = Math.floor(objY + this.objHeight);
+                this.d.x = Math.floor(objX + this.objWidth);
+                this.d.y = Math.floor(objY + this.objHeight);
+                break;
+            case 'default':
+                this.a.x = Math.floor(objX);
+                this.a.y = Math.floor(objY);
+                this.b.x = Math.floor(objX + this.objWidth);
+                this.b.y = Math.floor(objY);
+                this.c.x = Math.floor(objX);
+                this.c.y = Math.floor(objY + this.objHeight);
+                this.d.x = Math.floor(objX + this.objWidth);
+                this.d.y = Math.floor(objY + this.objHeight);
+                break;
+        }
+    }
+
+    draw() {
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.a.x, this.a.y, this.b.x - this.a.x, this.c.y - this.a.y);
+    }
+}
+
 class Player {
     constructor(x, y) {
         this.x = x;
         this.y = y;
         this.width = gridSize * 2;
         this.height = gridSize * 4;
-        this.hitbox = {
-            a: {
-                x: Math.floor(this.x - this.width / 2),
-                y: Math.floor(this.y - this.height / 2)
-            },
-            b: {
-                x: Math.floor(this.x + this.width / 2),
-                y: Math.floor(this.y - this.height / 2)
-            },
-            c: {
-                x: Math.floor(this.x - this.width / 2),
-                y: Math.floor(this.y + this.height / 2)
-            },
-            d: {
-                x: Math.floor(this.x + this.width / 2),
-                y: Math.floor(this.y + this.height / 2)
-            },
-        }
+        this.hitbox = new Hitbox(this.x, this.y, this.width, this.height, 'center', '#f00');
         this.velocity = {
             x: 0,
             y: 0
@@ -111,15 +182,14 @@ class Player {
         this.#screenEdgeVars();
         this.#updatePosition();
         this.checkCollisions();
+        console.log(this.hitbox.a);
         this.draw();
-        console.log(this.flyTstUpAnimation.isFinished);
     }
 
     draw() {
         // draw hitbox
         if (showingHitboxes) {
-            ctx.fillStyle = '#f00';
-            ctx.fillRect(this.hitbox.a.x, this.hitbox.a.y, this.hitbox.b.x - this.hitbox.a.x, this.hitbox.c.y - this.hitbox.a.y);
+            this.hitbox.draw();
         }
 
         // draw sprite
@@ -207,14 +277,7 @@ class Player {
         }
 
         //hitbox
-        this.hitbox.a.x = Math.floor(this.x - this.width / 2);
-        this.hitbox.b.x = Math.floor(this.x + this.width / 2);
-        this.hitbox.c.x = Math.floor(this.x - this.width / 2);
-        this.hitbox.d.x = Math.floor(this.x + this.width / 2);
-        this.hitbox.a.y = Math.floor(this.y - this.height / 2);
-        this.hitbox.b.y = Math.floor(this.y - this.height / 2);
-        this.hitbox.c.y = Math.floor(this.y + this.height / 2);
-        this.hitbox.d.y = Math.floor(this.y + this.height / 2);
+        this.hitbox.updatePosition(this.x, this.y);
     }
 
     #screenEdgeVars() {
@@ -274,9 +337,11 @@ class Player {
     checkCollisions() {
         const birdCollisions = birdArray.map(el => hitboxesColliding(this.hitbox, el.hitbox));
         const collidingWithBird = birdCollisions.some(i => i);
+        const lowObstCollisions = lowObstArray.map(el => hitboxesColliding(this.hitbox, el.hitbox));
+        const collidingWithLowObst = lowObstCollisions.some(i => i);
         
         if (!this.invulnerable) {
-            if (collidingWithBird) {
+            if (collidingWithBird || collidingWithLowObst) {
                 playerLives--;
                 this.state = 'hurt';
                 this.invulnerable = true;
@@ -285,25 +350,6 @@ class Player {
                     this.state = 'flyIdle';
                 }, 800);
             }
-        }
-    }
-}
-
-class Cactus {
-    constructor(x, height) {
-        this.x = x;
-        this.height = height;
-    }
-
-    update() {
-        this.x -= scrollSpeed;
-        this.draw();
-    }
-
-    draw() {
-        ctx.fillStyle = '#2f8';
-        for (let i = 0; i < this.height; i++) {
-            ctx.fillRect(this.x, canvas.height - (i + 1) * 32, 32, 32);
         }
     }
 }
@@ -323,24 +369,7 @@ class Bird {
         this.y = 1;
         this.diveDistance = (Math.ceil(Math.random() * 5) + 1) * 100;
         this.planeVelocity = oddsPercent(50) ? 3 : -1;
-        this.hitbox = {
-            a: {
-                x: Math.floor(this.x - this.width / 2),
-                y: Math.floor(this.y - this.height / 2)
-            },
-            b: {
-                x: Math.floor(this.x + this.width / 2),
-                y: Math.floor(this.y - this.height / 2)
-            },
-            c: {
-                x: Math.floor(this.x - this.width / 2),
-                y: Math.floor(this.y + this.height / 2)
-            },
-            d: {
-                x: Math.floor(this.x + this.width / 2),
-                y: Math.floor(this.y + this.height / 2)
-            },
-        }
+        this.hitbox = new Hitbox(this.x, this.y, this.width, this.height, 'center', '#f0f');
         this.#createAnimations();
     }
 
@@ -352,14 +381,7 @@ class Bird {
         this.x += this.velocity.x;
         this.y += this.velocity.y;
 
-        this.hitbox.a.x += this.velocity.x;
-        this.hitbox.b.x += this.velocity.x;
-        this.hitbox.c.x += this.velocity.x;
-        this.hitbox.d.x += this.velocity.x;
-        this.hitbox.a.y += this.velocity.y;
-        this.hitbox.b.y += this.velocity.y;
-        this.hitbox.c.y += this.velocity.y;
-        this.hitbox.d.y += this.velocity.y;
+        this.hitbox.updatePosition(this.x, this.y);
 
         this.#setState();
 
@@ -373,7 +395,7 @@ class Bird {
                 if (this.y >= this.diveDistance) {
                     this.velocity.y = this.planeVelocity;
                     this.velocity.x -= oddsPercent(50) ? 2 : 4;
-                    this.state = 'plane';
+                    this.state = 'tstDivePlane';
                 }
                 break;
             case 'diveStart':
@@ -385,7 +407,7 @@ class Bird {
                 if (this.y >= this.diveDistance) {
                     this.velocity.y = this.planeVelocity;
                     this.velocity.x -= oddsPercent(50) ? 2 : 4;
-                    this.state = 'plane';
+                    this.state = 'tstDivePlane';
                 }
                 break;
         }
@@ -396,14 +418,14 @@ class Bird {
     draw() {
         // draw hitbox
         if (showingHitboxes) {
-            ctx.fillStyle = '#00d';
-            ctx.fillRect(this.hitbox.a.x, this.hitbox.a.y, this.hitbox.b.x - this.hitbox.a.x, this.hitbox.c.y - this.hitbox.a.y);
+            this.hitbox.draw();
         }
 
+        // draw bird
         const currAnimation = this.animations.find(el => el.isFor(this.state));
         currAnimation.setImageIndex();
         const image = currAnimation.getImage();
-        ctx.drawImage(image, this.x - this.width / 2 - gridSize / 4, this.y - this.height / 2 - gridSize / 2);
+        ctx.drawImage(image, this.x - this.width / 2 - gridSize / 4, Math.floor(this.y - this.height / 2 - gridSize * 1.5));
     }
 
     dive() {
@@ -415,6 +437,10 @@ class Bird {
         if (this.state === 'diveStart' && this.diveStartAnimation.isFinished) {
             this.state = 'dive';
             this.diveStartAnimation.reset();
+        }
+        if (this.state === 'tstDivePlane' && this.tstDivePlaneAnimation.isFinished) {
+            this.state = 'plane';
+            this.tstDivePlaneAnimation.reset();
         }
     }
 
@@ -441,11 +467,19 @@ class Bird {
             true,
             'plane'
         );
+        this.tstDivePlaneAnimation = new SpriteAnimation(
+            'bird/bird-tst-diveplane-x.png',
+            8,
+            3,
+            false,
+            'tstDivePlane'
+        );
 
         this.animations = [
             this.diveStartAnimation,
             this.diveAnimation,
             this.planeAnimation,
+            this.tstDivePlaneAnimation,
         ];
     }
 }
@@ -513,14 +547,31 @@ class SpriteAnimation {
     }
 }
 
-const player = new Player(gridSize * 8, gridSize * 10);
-const cactusArray = [];
+class LowObstacle {
+    constructor() {
+        this.blockSize = gridSize;
+        this.blockWidth = 2;
+        this.blockHeight = Math.ceil(Math.random() * 4) + 6;
+        this.width = this.blockSize * this.blockWidth;
+        this.height = this.blockSize * this.blockHeight;
+        this.x = canvasWidth;
+        this.y = canvasHeight - this.height;
+        this.hitbox = new Hitbox(this.x, this.y, this.width, this.height, 'corner', '#00f');
+    }
 
-for (let i = 0; i < 6; i++) {
-    cactusArray.push(
-        new Cactus(gridSize * Math.ceil((Math.random() * horizontalSquares)), Math.ceil(Math.random() * 8 + 2))
-    )
+    update() {
+        this.x -= scrollSpeed;
+        this.hitbox.updatePosition(this.x, this.y);
+        this.draw();
+    }
+
+    draw() {
+        this.hitbox.draw();
+    }
 }
+
+const player = new Player(gridSize * 8, gridSize * 10);
+const lowObstArray = [];
 
 loop();
 
@@ -539,6 +590,13 @@ function loop() {
             // cactusArray.forEach(cactus => {
             //     cactus.update();
             // });
+
+            lowObstArray.forEach((el, index) => {
+                el.update();
+                if (el.x + el.width < 0 || el.x > canvasWidth || el.y < 0 || el.y > canvasHeight) {
+                    lowObstArray.splice(index, 1);
+                }
+            });
 
             birdArray.forEach((el, index) => {
                 el.update();
@@ -622,6 +680,7 @@ function drawPowerup() {
 }
 
 function drawScore() {
+    ctx.fillStyle = '#000';
     ctx.font = '36px sans-serif';
     ctx.fillText('SCORE: ' + score, canvasWidth - gridSize * 8, gridSize * 2);
 }
@@ -629,14 +688,18 @@ function drawScore() {
 function oneSecClock() {
     if (!isPaused) {
         // bird spawning
-        if (oddsPercent(60)) {
+        if (oddsPercent(40)) {
             spawnBird();
         }
-
-        if (oddsPercent(5)) {
+        if (oddsPercent(4)) {
             for (let i = 0; i < 4; i++) {
                 spawnBird();
             }
+        }
+
+        // low obstacle spawining
+        if (oddsPercent(30)) {
+            spawnLowObst();
         }
 
         // score
@@ -651,6 +714,11 @@ function spawnBird() {
     const bird = new Bird();
     birdArray.push(bird);
     bird.create();
+}
+
+function spawnLowObst() {
+    const obstacle = new LowObstacle();
+    lowObstArray.push(obstacle);
 }
 
 function oddsPercent(num) {
